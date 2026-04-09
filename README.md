@@ -2,6 +2,12 @@
 
 > 从需求到交付的高密度信息型 PPT 完整工作流 skill，特别适合华为式战略页、架构总览、数据洞察、方案对比等**高密度 document 型**页面。
 
+## Demo
+
+![Demo 1](docs/demo-1.jpg)
+
+![Demo 2](docs/demo-2.jpg)
+
 ## 这是什么
 
 这是一个可独立使用的 Claude Code / Claude Agent skill，覆盖 PPT 制作的 6 个场景：
