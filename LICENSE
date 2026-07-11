@@ -1,14 +1,16 @@
 MIT License
 
+Copyright (c) 2026 Clowder AI Contributors
 Copyright (c) 2026 Rewrite authors
 
-This work is a structural rewrite of reference documents from
-https://github.com/zts212653/clowder-ai (branch: sync/v0.5.0,
-path: cat-cafe-skills/refs/ppt-*.md and cat-cafe-skills/ppt-forge/SKILL.md).
-All original insights, spike lessons, numerical thresholds, and case studies
-belong to the original authors of the clowder-ai project. This rewrite
-reorganizes and clarifies the material for standalone skill usage without
-altering semantics.
+This distribution includes adapted reference documents from
+https://github.com/zts212653/clowder-ai (branch: main,
+paths: cat-cafe-skills/ppt-forge/SKILL.md,
+cat-cafe-skills/refs/ppt-lofi-authoring.md, and
+cat-cafe-skills/refs/ppt-style-huawei.md).
+The standalone adaptation reorganizes paths, removes project-specific role
+coupling, and adds readability, editability, and output-validation guidance.
+Original insights and case studies remain credited to the clowder-ai authors.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
