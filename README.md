@@ -1,112 +1,87 @@
 # 华为风格 PPT Skill
 
-> 从需求到交付的高密度信息型 PPT 完整工作流 skill，特别适合华为式战略页、架构总览、数据洞察、方案对比等**高密度 document 型**页面。
+面向战略汇报、架构总览、经营分析和方案对比的 PPT 制作工作流。新版采用：
 
-## Demo
+> 内容分析 → 分页规划 → 低保真 Markdown 蓝图 → imagegen 逐页出图 → 视觉与文字验收
 
-![Demo 1](docs/demo-1.jpg)
+相比旧版 HTML/CSS 高密度管线，新版不再用空白率和元素数量驱动排版，优先保证主结论、信息层级和视觉质量。
 
-![Demo 2](docs/demo-2.jpg)
+## 主要变化
 
-## 这是什么
-
-这是一个可独立使用的 Claude Code / Claude Agent skill，覆盖 PPT 制作的 6 个场景：
-
-| 场景 | 文档 | 做什么 |
-|---|---|---|
-| A 内容规划 | `ppt-forge/SKILL.md`（内联） | 锁 archetype + 受众 + 观看模式 + 本页目的 + 证据源 |
-| B 风格定调 | `ppt-forge/01-style-tile.md` | 先做 1-2 核心页定 CSS 基调再批量 |
-| C Slide 制作 | `ppt-forge/02-slide-authoring.md` | HTML 制作规范 + Pre-flight Checklist |
-| D 视觉审查 | `ppt-forge/03-visual-review.md` | D1 布局 + D2 审美 + Archetype Guard + Regression Pair Gate |
-| E 导出验证 | `ppt-forge/SKILL.md`（内联） | Export Truth Gate（native text/chart/table/screenshot） |
-| F 交付 | `ppt-forge/04-delivery.md` | browser-preview + 密度报告 + 等确认 |
-| G Benchmark 对拍 | `ppt-forge/SKILL.md`（内联） | 同 archetype/主题/观看模式下的竞品对拍 |
-
-核心参考：`ppt-forge/references/density-playbook.md` — 8 种密度填充手段 + CSS 模板 + spike 教训。
-
-## 核心原则
-
-1. **愿景优先 > 局部门禁** — reviewer 不能为满足单一字号/留白门禁把页面改成另一种 archetype。
-2. **混合布局 >> 单一 grid** — 每页至少混合 3 种以上填充手段（KPI/截图/表格/SmartArt/总结条/色块/图标/多级字号）。
-3. **先审"对不对"，再审"像不像"** — D1 布局门禁未过不进 D2 审美。
-4. **页型决定字号，不是字号决定页型** — 发布会 14px / 华为高密 10px / Dashboard 12px / document 9px。
-5. **交付不是"文件丢过去"** — 必须用 browser-preview 开到铲屎官眼前，等确认。
+- 同步 `clowder-ai` 2026-06-17 的新版 PPT Forge 流程。
+- 用 ASCII art 低保真蓝图锁定每页结构，再交给 imagegen。
+- 新增完整华为风格 preset：色板、灰度、字体、8 种页面模式、图表配色和禁忌清单。
+- 删除旧 HTML/CSS、密度检测和多 reviewer 流程。
+- 明确 raster PNG 与可编辑 PPTX 的能力边界和交接条件。
+- 增加生成后文字、数字和来源复核门禁。
 
 ## 目录结构
 
-```
+```text
 huawei-style-ppt-skill/
-├── README.md              ← 本文件
-├── LICENSE                ← MIT
+├── README.md
+├── LICENSE
 └── ppt-forge/
-    ├── SKILL.md           ← 入口：核心原则 + 开局参数 + 场景路由 + A/E/G/R 内联章节
-    ├── 01-style-tile.md   ← B 场景详细流程
-    ├── 02-slide-authoring.md  ← C 场景：HTML 制作 + Pre-flight Checklist
-    ├── 03-visual-review.md    ← D 场景：D1/D2 审查 + Archetype Guard + Regression Pair Gate
-    ├── 04-delivery.md         ← F 场景：交付流程
+    ├── SKILL.md
+    ├── agents/
+    │   └── openai.yaml
     └── references/
-        └── density-playbook.md ← 8 种填充手段 + SmartArt/截图 CSS 模板 + spike 教训
+        ├── ppt-lofi-authoring.md
+        └── ppt-style-huawei.md
 ```
 
 ## 快速开始
 
-作为 Claude Code skill 使用：
+### 前置能力
+
+最终出图要求宿主提供可调用的 image-generation / imagegen 工具。安装后先确认当前会话能生成图片；如果宿主没有该能力，本 skill 只交付分页表和低保真 Markdown，不承诺生成最终视觉稿。
+
+Claude Code：
 
 ```bash
-# 方式 1：放到本地 skills 目录
 cp -r ppt-forge ~/.claude/skills/
-
-# 方式 2：在项目里作为 reference 文档引用
-# 直接把 ppt-forge/ 目录复制到项目内，按需阅读
 ```
 
-然后用自然语言触发：
+Codex：
 
-> "做一页华为风格的架构总览 PPT，受众是 CTO，大屏投影"
+```bash
+cp -r ppt-forge ~/.codex/skills/
+```
 
-Claude 会按 SKILL.md 的场景路由依次走 A → B → C → D → E → F。
+然后直接提出需求：
+
+> 做一套华为式技术方案汇报，受众是 CTO，大屏展示，内容可以适度精简。
+
+Skill 会先给出分页表和低保真稿；确认且当前宿主具备图像生成能力后，才逐页生成最终视觉稿。
+
+## 输出模式
+
+| 模式 | 适用场景 | 限制 |
+|---|---|---|
+| Low-fi Markdown | 所有宿主；内容规划和审稿 | 不含最终视觉稿 |
+| Raster PNG | 宿主具备 image-generation 能力；快速出图和固定内容交付 | 文字、图表和形状不可独立编辑 |
+| Editable PPTX handoff | 正式汇报、需要反复改稿 | 本仓库不实现；必须交给独立的原生 PPTX authoring/export 工具 |
+
+不要把整页 PNG 宣称为“可编辑 PPT”。需要可编辑交付时，停止在低保真稿和视觉素材交付，并明确转交原生 PPTX 制作流程。
 
 ## 使用前必读
 
-- **开局 5 参数**必须先锁：archetype / 品牌 / 受众 / 场景 / 主观看模式。没锁 = 不许动手。
-- **6 件套输入包**在发起视觉审查时必须齐全，缺一项打回补齐。
-- 密度数据必须真实测量（whitespace / element count / text nodes / overflow），不是目测。
-- `Regression Pair Gate`：每次 re-review 必须对拍上一版，信息密度下降 >20% 或模块数下降 >30% → 自动 P1 打回。
+- 一页只讲一个主结论；高密度不等于没有留白。
+- 先确认分页和最复杂的一页，再批量生成。
+- 图片中的文字必须逐字核对，尤其是中文、数字、单位和来源。
+- 华为红只用于关键数据和结论，不应铺满整页。
+- 正式交付前必须并排查看整套页面，检查字体、配色、装饰和密度是否漂移。
 
-## 来源与致谢
+## 来源与许可
 
-本 skill 是对 [`zts212653/clowder-ai`](https://github.com/zts212653/clowder-ai) 仓库 `sync/v0.5.0` 分支 `cat-cafe-skills/` 目录的结构性重写：
+新版工作流同步自 [`zts212653/clowder-ai`](https://github.com/zts212653/clowder-ai) `main` 分支：
 
-| 原始文件 | 本仓库对应 |
+| 上游文件 | 本仓库文件 |
 |---|---|
 | `cat-cafe-skills/ppt-forge/SKILL.md` | `ppt-forge/SKILL.md` |
-| `cat-cafe-skills/refs/ppt-style-tile.md` | `ppt-forge/01-style-tile.md` |
-| `cat-cafe-skills/refs/ppt-slide-authoring.md` | `ppt-forge/02-slide-authoring.md` |
-| `cat-cafe-skills/refs/ppt-visual-review.md` | `ppt-forge/03-visual-review.md` |
-| `cat-cafe-skills/refs/ppt-delivery.md` | `ppt-forge/04-delivery.md` |
-| `cat-cafe-skills/refs/ppt-density-playbook.md` | `ppt-forge/references/density-playbook.md` |
+| `cat-cafe-skills/refs/ppt-lofi-authoring.md` | `ppt-forge/references/ppt-lofi-authoring.md` |
+| `cat-cafe-skills/refs/ppt-style-huawei.md` | `ppt-forge/references/ppt-style-huawei.md` |
 
-### 重写原则
+同步基线：上游 PPT Forge 最近提交 `f3d530cea3ef`（2026-06-17）。本仓库将上游分散引用整理为可独立安装的 skill，并移除了项目内部角色与工具耦合。
 
-1. **语义零丢失** — 所有数值阈值（字号矩阵、间距规则、密度阈值）、spike 教训（2026-04-03 / 04 / 05）、反面案例（D4 strategy-bar、R2→R3 密度腰斩、D5 垂直切片）、CSS 代码模板全部保留。
-2. **去多猫人格耦合** — 原文中的 `Ragdoll` / `Maine Coon` / `Siamese` 猫猫角色映射为通用角色：
-   - Ragdoll → author（作者 / 制作者）
-   - Maine Coon → D1 reviewer（布局/信息审查员）
-   - Siamese → D2 reviewer（审美/品牌审查员）
-3. **保留"铲屎官"称呼** — 这是原文调性的一部分，不改。
-4. **补齐 frontmatter** — 每份 `.md` 顶部加 `name` + `description`，可被 Skill 工具命中。
-5. **孤儿场景内联保留** — 原仓库未拆出独立文件的 A（内容规划）、E（Export Truth Gate）、G（Benchmark 对拍）、R（翻盘重来）4 个场景，作为 SKILL.md 的内联章节原样保留。
-6. **修相对路径** — 原 `../refs/ppt-*.md` 改为本仓库布局的相对路径。
-
-### 不包含的内容
-
-以下外部 skill 在原仓库存在但**未纳入本次重写**，因为它们和 PPT 制作精度不直接相关：
-
-- `cat-cafe-skills/feat-lifecycle/` — feature 开发生命周期 skill。若 PPT 是某 feature 交付物的一部分，可在 F 场景完成后衔接该外部 skill。
-- `cat-cafe-skills/browser-preview/` — 内嵌浏览器预览 skill。04-delivery.md 已把调用方式和降级顺序（Chrome MCP navigate → 截图+URL）内联，无需独立重写。
-
-原始 spike 教训、决策记录、事故复盘都归功于 clowder-ai 项目作者。本重写仅做结构清晰化，不做任何"改进"。
-
-### 重写日期
-
-2026-04-08
+MIT License，详见 [LICENSE](LICENSE)。
